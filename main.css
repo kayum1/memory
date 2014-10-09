@@ -1,0 +1,52 @@
+
+		* { margin: 0; padding: 0; }
+
+		.memory {
+				margin: 0 auto;
+				width: 400px;
+		}
+
+		div.game-board {
+				float: left;
+				margin-top:20px;
+
+		}
+
+		.game-board > div {
+				background-color: #BBBDBF;
+				border-top: 1px solid #ccc;
+				border-right: 1px solid #999;
+				border-bottom: 1px solid #999;
+				border-left: 1px solid #ccc;
+				cursor: pointer;
+				float: left;
+
+				margin-right: 4px;
+				margin-bottom: 4px;
+				height: 100px;
+				width: 100px;
+		}
+
+		.game-board > div:hover {
+				border: 1px solid #000;
+		}
+
+		.pressed {
+				background-color: #fff!important;
+				border-top: 1px solid #666!important;
+				border-right: 1px solid #ccc!important;
+				border-bottom: 1px solid #ccc!important;
+				border-left: 1px solid #666!important;
+		}
+
+		.left-square {
+				clear: left;
+		}
+
+		.clear {
+				clear: both;
+		}
+
+		.match {
+				visibility: hidden;
+		}
