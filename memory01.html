@@ -8,107 +8,95 @@
     <link rel="stylesheet" type="text/css" href="main.css">
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
     <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
   </head>
   <body>
 <p id='numberofclicks'></p>
 <div class='memory'>
   <div><button id='populate'>Start Memory Game</button></div>
     <div class='game-board'>
-      <div class='memory_button' data-glyph='flaticon-3g1' id='0'></div>
-      <div class='memory_button' data-glyph='flaticon-electric41' id='1'></div>
-      <div class='memory_button' data-glyph='flaticon-4g1' id='2'></div>
-      <div class='memory_button' data-glyph='flaticon-electric40' id='3'></div>
-      <div class='memory_button' data-glyph='flaticon-gps8' id='4'></div>
-      <div class='memory_button' data-glyph='flaticon-email30' id='5'></div>
-      <div class='memory_button' data-glyph='flaticon-email30' id='6'></div>
-      <div class='memory_button' data-glyph='flaticon-gps8' id='7'></div>
-      <div class='memory_button' data-glyph='flaticon-electric40' id='8'></div>
-      <div class='memory_button' data-glyph='flaticon-4g1' id='9'></div>
-      <div class='memory_button' data-glyph='flaticon-electric41' id='10'></div>
-      <div class='memory_button' data-glyph='flaticon-3g1' id='11'></div>
-<!--
-  <div id='display'></div> -->
     </div>
     <div class='clear'></div>
 </div>
 
-    <script>
-    var numberOfClicks = 0,
-        click_state = false,
-        current_glyph = '',
-        current_id = -99;
+ <script>
+ $( document ).ready(function()
+   {
 
-      $("#populate").click(function()
-      {
-        var arr = [ "flaticon-3g1", "flaticon-4g1" , "flaticon-electric40", "flaticon-electric41", "flaticon-email30","flaticon-gps8"] // ,"flaticon-hand96","flaticon-incoming11","flaticon-mobile129"];
-            ,str = ""
-            ,k = 0;
-// reset counter
-            numberOfClicks = 0;
-            $('#numberofclicks').hide() ;
+   var numberOfClicks = 0,
+       click_state = false,
+       current_glyph = '',
+       current_id = -99;
 
-// generate game board
-          for (var i = 0; i < 2; i++)
-            {
-              arr.sort(function() {return (i + 0.5) - Math.random()});
-              for (var j = 0; j < arr.length; j++)
-                {
-                  str += "<div class='memory_button' data-glyph='" + arr[j] + "' id='" + k++ + "'></div>";
-                }
-            }
-            console.log (str);
-       //   $('#display').prepend(str) ;
-      }) ;
+     $("#populate").click(function()
+     {
+       var arr = [ "flaticon-3g1", "flaticon-4g1" , "flaticon-electric40", "flaticon-electric41", "flaticon-email30","flaticon-gps8"] // ,"flaticon-hand96","flaticon-incoming11","flaticon-mobile129"];
+           ,str = ""
+           ,k = 0;
+   // reset counter
+           numberOfClicks = 0;
+           $('#numberofclicks').hide() ;
 
+   // generate game board
+         for (var i = 0; i < 2; i++)
+           {
+             arr.sort(function() {return (i + 0.5) - Math.random()});
+             for (var j = 0; j < arr.length; j++)
+               {
+                 str += "<div class='memory_button' data-glyph='" + arr[j] + "' id='" + k++ + "'></div>";
+               }
+           }
+           console.log (str);
+         $('.game-board').prepend(str) ;
+      //    $(this).html().replace(pattern,'"');
+     }) ;
 
-  $('.memory_button').on('click', function() {
-    numberOfClicks++;
-    $('#numberofclicks').show().text("Number of clicks to finish game = " + numberOfClicks) ;
+   $('.game-board').on('click', '.memory_button', function() {
+     numberOfClicks++;
+     $('#numberofclicks').show().text("Number of clicks to finish game = " + numberOfClicks) ;
 
-    $(this).addClass('active');
+     $(this).addClass('active');
 
-    //Step 1. Check the State
-    if ( click_state === false ) {
-        var selected_glyph = $(this).attr('data-glyph');
-        var selected_id = $(this).attr('id');
+     //Step 1. Check the State
+     if ( click_state === false ) {
+         var selected_glyph = $(this).attr('data-glyph');
+         var selected_id = $(this).attr('id');
 
-        $(this).addClass(selected_glyph);
-        //set the current glyph global variable
-        current_glyph = selected_glyph;
-        current_id = selected_id;
-        //set click state to true for second click
-        click_state = true;
-    }
-    else {
-          //reset the click state
-          click_state = false;
+         $(this).addClass(selected_glyph);
+         //set the current glyph global variable
+         current_glyph = selected_glyph;
+         current_id = selected_id;
+         //set click state to true for second click
+         click_state = true;
+     }
+     else {
+           //reset the click state
+           click_state = false;
+           //store the selected button glyph
+           var selected_glyph = $(this).attr('data-glyph');
+           var selected_id = $(this).attr('id');
 
-          //store the selected button glyph
-          var selected_glyph = $(this).attr('data-glyph');
-          var selected_id = $(this).attr('id');
+           $(this).addClass(selected_glyph);
 
-          $(this).addClass(selected_glyph);
+           if ( selected_glyph == current_glyph && selected_id != current_id) {
+ //          console.log('there is a match');
+             current_glyph = '';
+             current_id = -99;
+             $('.active').addClass('match');
+             $('.active').removeClass('active');
+             $('.memory_button').removeClass(selected_glyph);
 
-          if ( selected_glyph == current_glyph && selected_id != current_id) {
-//          console.log('there is a match');
-         // reset the current color
-            current_glyph = '';
-            current_id = -99;
-            $('.active').addClass('match');
-            $('.active').removeClass('active');
-            $('.memory_button').removeClass(selected_glyph);
-
-        } else {
-//            console.log('there is not a match');
-           setTimeout(function () {
-                current_id =  -99;
-                $('.active').removeClass('active');
-                $('.memory_button').removeClass(selected_glyph).removeClass(current_glyph);
-            }, 1000);
-         }
-    }
-
-});
-    </script>
+         } else {
+ //            console.log('there is not a match');
+            setTimeout(function () {
+                 current_id =  -99;
+                 $('.active').removeClass('active');
+                 $('.memory_button').removeClass(selected_glyph).removeClass(current_glyph);
+             }, 1000);
+          }
+     }
+   })
+ });
+     </script>
   </body>
 </html>
