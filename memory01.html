@@ -4,16 +4,25 @@
     <title>Memory exercise</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
-    <link rel="stylesheet" type="text/css" href="flaticon.css">
-    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="css/flaticon.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
     <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 
+  <!-- Include jQuery -->
   </head>
   <body>
-<p id='numberofclicks'></p>
+
+<p id='numberofclicks'><div id='success'></div><div id='failure'></div></p>
 <div class='memory'>
-  <div><button id='populate'>Start Memory Game</button></div>
+  <div id='userEntry'>Enter the number of squares
+    <input id='numberOfSquares' name='numberOfSquares' type='number' value='2' maxsize='3'/>
+  </div>
+    <div>
+        <button id='populateBoard'>Start Memory Game</button>
+        <button id='resetBoard'>Reset Board</button>
+    </div>
     <div class='game-board'>
     </div>
     <div class='clear'></div>
@@ -22,81 +31,141 @@
  <script>
  $( document ).ready(function()
    {
-
    var numberOfClicks = 0,
+       success = 0,
+       failure = 0,
        click_state = false,
        current_glyph = '',
-       current_id = -99;
+       current_id = -99,
+       selectedEffect,
+       prevUnmatchedEffects,
+       unmatchedSelected = "shake";
+       var effects = ["blind","bounce","clip","drop","explode","fade","fold","highlight","puff","pulsate","scale","shake","size","slide","transfer"];
 
-     $("#populate").click(function()
-     {
-       var arr = [ "flaticon-3g1", "flaticon-4g1" , "flaticon-electric40", "flaticon-electric41", "flaticon-email30","flaticon-gps8"] // ,"flaticon-hand96","flaticon-incoming11","flaticon-mobile129"];
-           ,str = ""
-           ,k = 0;
-   // reset counter
-           numberOfClicks = 0;
-           $('#numberofclicks').hide() ;
+    $("#resetBoard").click(function()
+    {
+      $('.game-board').remove();
+    });
 
-   // generate game board
-         for (var i = 0; i < 2; i++)
-           {
-             arr.sort(function() {return (i + 0.5) - Math.random()});
-             for (var j = 0; j < arr.length; j++)
-               {
-                 str += "<div class='memory_button' data-glyph='" + arr[j] + "' id='" + k++ + "'></div>";
-               }
-           }
-           console.log (str);
-         $('.game-board').prepend(str) ;
-      //    $(this).html().replace(pattern,'"');
-     }) ;
+    $("#populateBoard").click(function()
+    {
+      var arr = [ "flaticon-3g1", "flaticon-4g1", "flaticon-electric40", "flaticon-electric41", "flaticon-email30","flaticon-gps8","flaticon-hand96","flaticon-incoming11","flaticon-mobile129"]
+          ,str = ""
+          ,k = 0;
+// reset counter
+      numberOfClicks = success = failure = numberOfSquares = 0;
+      $('#numberofclicks').hide() ;
+      numberOfSquares = $('#numberOfSquares').val();
+
+      console.log ('numberOfSquares = ' + numberOfSquares);
+      if (numberOfSquares > arr.length)
+        {
+          alert ("Cannot more than " + arr.legnth + " squares.  It can only support " + arr.length);
+          numberOfSquares = arr.length;
+        }
+
+      arr.splice(numberOfSquares, arr.length - numberOfSquares);
+    console.log ("Arr = " + arr);
+// generate game board
+    for (var i = 0; i < 2; i++)
+      {
+        arr.sort(function() {return (i + 0.5) - Math.random()});
+        for (var j = 0; j < arr.length; j++)
+          {
+            console.log ("J = " + j + " glyph = " +  arr[j] );
+            str += "<div id='effect' class='memory_button ui-widget-content ui-corner-all' data-glyph='" + arr[j] + "' data-id='" + k++ + "'></div>";
+          }
+      }
+      $('.game-board').prepend(str) ;
+  }) ;
+
+  $(function() {
+   // set effect from select menu value
+   $( "#button" ).click(function() {
+     runEffect();
+     return false;
+   });
+ });
+
+  function callback(selected_id)
+  {
+      setTimeout(function()
+      {
+        $("#"+selected_id).removeAttr( "style" ).hide().fadeIn();
+      }, 1000 );
+    };
+
 
    $('.game-board').on('click', '.memory_button', function() {
      numberOfClicks++;
-     $('#numberofclicks').show().text("Number of clicks to finish game = " + numberOfClicks) ;
+     $('#numberofclicks').show().text("Clicks = " + numberOfClicks) ;
 
-     $(this).addClass('active');
+// most effect types need no options passed by default
+var options = {};
+// some effects have required parameters
+
+  options = { to: { width: 200, height: 60 } };
+
+     var effectsIdx = Math.floor((Math.random() * effects.length) + 1);
+     selectedEffect = effects[effectsIdx];
 
      //Step 1. Check the State
      if ( click_state === false ) {
          var selected_glyph = $(this).attr('data-glyph');
-         var selected_id = $(this).attr('id');
+         var selected_id = $(this).attr('data-id');
 
-         $(this).addClass(selected_glyph);
+console.log ("First click = " + selected_glyph);
+        $(this).addClass(selected_glyph);
          //set the current glyph global variable
          current_glyph = selected_glyph;
          current_id = selected_id;
          //set click state to true for second click
          click_state = true;
      }
-     else {
-           //reset the click state
-           click_state = false;
-           //store the selected button glyph
-           var selected_glyph = $(this).attr('data-glyph');
-           var selected_id = $(this).attr('id');
 
-           $(this).addClass(selected_glyph);
+    else {
+          //reset the click state
+          click_state = false;
+          //store the selected button glyph
+          var selected_glyph = $(this).attr('data-glyph');
+          var selected_id = $(this).attr('data-id');
 
-           if ( selected_glyph == current_glyph && selected_id != current_id) {
- //          console.log('there is a match');
-             current_glyph = '';
-             current_id = -99;
-             $('.active').addClass('match');
-             $('.active').removeClass('active');
-             $('.memory_button').removeClass(selected_glyph);
+console.log ("Second click = " + selected_glyph);
 
-         } else {
+          $(this).addClass(selected_glyph);
+          if ( selected_glyph == current_glyph && selected_id != current_id) {
+            console.log('there is a match');
+            success++;
+
+            $('#success').show().text('Successfully Matched = ' + success) ;
+            current_glyph = '';
+            current_id = -99;
+            setTimeout(function () {
+            //    $('.active').removeClass('active');
+                  $('.'+selected_glyph).effect( "shake", options, 2400,callback(selected_id));
+              },1200);
+              $('.'+selected_glyph).remove();
+        }  else {
  //            console.log('there is not a match');
+                failure++;
+                $('#failure').show().text('Failed Matched = ' + failure) ;
+
+              if (prevUnmatchedEffects == "shake")
+                  unmatchedSelected  = "slide";
+              else
+                  unmatchedSelected  = "shake";
+
             setTimeout(function () {
                  current_id =  -99;
-                 $('.active').removeClass('active');
-                 $('.memory_button').removeClass(selected_glyph).removeClass(current_glyph);
-             }, 1000);
-          }
-     }
-   })
- });
+                  $('.active').removeClass('active');
+                  $('.memory_button').removeClass(current_glyph).removeClass(selected_glyph).effect(unmatchedSelected, options, 2200,callback(selected_id));
+                },100);
+
+                prevUnmatchedEffects = unmatchedSelected ;
+           }
+        }
+      })
+    });
      </script>
   </body>
 </html>
